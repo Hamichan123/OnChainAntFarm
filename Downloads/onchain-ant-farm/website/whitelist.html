@@ -310,8 +310,11 @@ document.querySelectorAll('.done-btn').forEach(btn => {
   });
 });
 
+// ↓ Paste your deployed Apps Script Web App URL here
+const SHEET_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwvvYP9_MZodl9ediP2fJWZFT2kAV1cphGEyzfWQxhreqJ7iiW2hH3GGeQMPi1YRp4f/exec';
+
 // Claim
-document.getElementById('claimBtn').addEventListener('click', function () {
+document.getElementById('claimBtn').addEventListener('click', async function () {
   const status = document.getElementById('claimStatus');
   this.disabled = true;
   status.className = 'claim-status';
@@ -322,16 +325,32 @@ document.getElementById('claimBtn').addEventListener('click', function () {
     comment:  document.getElementById('wl-comment').value.trim(),
     wallet:   document.getElementById('wl-wallet').value.trim(),
   };
-  console.log('WL submission', payload);
 
-  setTimeout(() => {
-    document.getElementById('formArea').style.display = 'none';
-    const box = document.getElementById('successBox');
-    box.style.display = 'block';
-    document.getElementById('successMsg').textContent =
-      'Welcome, ' + payload.username + '. Your spot is reserved — stay tuned for mint details.';
-  }, 900);
+  try {
+    const res = await fetch(SHEET_ENDPOINT, {
+      method: 'POST',
+      // Apps Script requires no-cors when called from a plain HTML page
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    // no-cors means we can't read the response body, but if it didn't throw the row was written
+    showSuccess(payload.username);
+  } catch (err) {
+    status.className = 'claim-status err';
+    status.textContent = 'Submission failed — check your connection and try again.';
+    this.disabled = false;
+  }
 });
+
+function showSuccess(username) {
+  document.getElementById('formArea').style.display = 'none';
+  const box = document.getElementById('successBox');
+  box.style.display = 'block';
+  document.getElementById('successMsg').textContent =
+    'Welcome, ' + username + '. Your spot is reserved — stay tuned for mint details.';
+}
 
 updateProgress();
 </script>
