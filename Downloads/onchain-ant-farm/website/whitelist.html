@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apply to Whitelist — On-Chain Ant Farm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Spline+Sans:wght@400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#171009; --panel:#211a12; --panel2:#291f15; --line:#3a2c1d; --line2:#4b3a26;
+  --ink:#ece1cd; --muted:#a89a80; --faint:#7a6c52;
+  --brass:#cf9a4c; --brass-deep:#9a6b2c;
+  --tan:#d4b483; --radius:14px; --nav-h:54px;
+  --disp:'Fraunces',Georgia,serif;
+  --body:'Spline Sans',system-ui,sans-serif;
+  --mono:'Space Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100vh}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.6;
+  background-image:radial-gradient(1200px 800px at 60% -5%,#241a0f 0%,var(--bg) 65%);}
+
+/* ── nav ── */
+.site-nav{position:sticky;top:0;z-index:100;height:var(--nav-h);
+  background:rgba(23,16,9,.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);display:flex;align-items:center}
+.site-nav .inner{max-width:1120px;width:100%;margin:0 auto;padding:0 20px;
+  display:flex;align-items:center;gap:6px}
+.site-nav .brand{font-family:var(--disp);font-size:16px;color:var(--tan);font-weight:500;
+  text-decoration:none;margin-right:auto;white-space:nowrap}
+.nav-link{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);text-decoration:none;padding:7px 13px;border-radius:8px;
+  border:1px solid transparent;transition:color .15s,border-color .15s,background .15s}
+.nav-link:hover{color:var(--ink);background:var(--panel2);border-color:var(--line2)}
+.nav-link.active{color:#1c1305;background:linear-gradient(180deg,#e9bd72,var(--brass));
+  border-color:#7a521f;font-weight:700}
+
+/* ── page layout ── */
+.wrap{max-width:600px;margin:0 auto;padding:48px 20px 90px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--brass);margin:0 0 10px}
+h1{font-family:var(--disp);font-weight:500;font-size:clamp(28px,5vw,44px);
+  line-height:1.05;margin:0 0 8px}
+h1 em{font-style:italic;color:var(--tan);font-weight:400}
+.lede{color:var(--muted);font-size:15px;margin:0 0 28px}
+
+/* ── progress bar ── */
+.prog-wrap{margin-bottom:28px}
+.prog-header{display:flex;justify-content:space-between;align-items:baseline;
+  font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--faint);margin-bottom:8px}
+.prog-header span{color:var(--brass);font-size:13px;font-weight:700}
+.prog-track{height:8px;background:var(--panel2);border:1px solid var(--line2);
+  border-radius:999px;overflow:hidden}
+.prog-fill{height:100%;width:0%;border-radius:999px;
+  background:linear-gradient(90deg,var(--brass-deep),var(--brass));
+  transition:width .4s cubic-bezier(.4,0,.2,1)}
+
+/* ── card ── */
+.card{background:linear-gradient(160deg,var(--panel) 0%,#1a1208 100%);
+  border:1px solid var(--line2);border-radius:var(--radius);overflow:hidden}
+
+/* ── task item ── */
+.task{border-bottom:1px solid var(--line);transition:opacity .25s}
+.task:last-child{border-bottom:0}
+.task.locked{opacity:.38;pointer-events:none}
+.task.done .task-num{background:#2a3d1e;border-color:#4a6e33;color:#7fc97a}
+.task.done .task-num::after{content:'✓'}
+.task.done .task-num-inner{display:none}
+
+.task-top{display:flex;align-items:flex-start;gap:14px;padding:20px 24px 0}
+.task-num{flex-shrink:0;width:32px;height:32px;border-radius:50%;
+  background:var(--panel2);border:1px solid var(--line2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:12px;font-weight:700;color:var(--brass);
+  transition:background .3s,border-color .3s,color .3s;margin-top:2px}
+.task-content{flex:1}
+.task-label{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--faint);margin-bottom:3px}
+.task-desc{font-size:14.5px;color:var(--ink);margin:0 0 12px;line-height:1.55}
+.task-desc a{color:var(--brass);text-decoration:none}
+.task-desc a:hover{text-decoration:underline}
+
+/* input inside task */
+.task-input{width:100%;background:var(--bg);border:1px solid var(--line2);border-radius:8px;
+  color:var(--ink);font-family:var(--mono);font-size:13px;padding:10px 13px;
+  outline:none;transition:border-color .15s;display:block}
+.task-input:focus{border-color:var(--brass)}
+.task-input::placeholder{color:var(--faint)}
+.task-input:disabled{opacity:.4;cursor:not-allowed}
+
+/* ── task action row ── */
+.task-actions{display:flex;gap:8px;padding:12px 24px 20px;justify-content:flex-end}
+.t-btn{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.06em;
+  border-radius:8px;padding:9px 16px;cursor:pointer;transition:opacity .15s,transform .05s;border:1px solid}
+.t-btn:active{transform:scale(.97)}
+.t-btn:disabled{opacity:.35;cursor:not-allowed}
+
+.go-btn{color:var(--ink);background:var(--panel2);border-color:var(--line2)}
+.go-btn:hover:not(:disabled){background:#34271a;border-color:var(--brass-deep)}
+
+.done-btn{color:#1c1305;background:linear-gradient(180deg,#e9bd72,var(--brass));
+  border-color:#7a521f}
+.done-btn:hover:not(:disabled){opacity:.88}
+.done-btn:disabled{background:var(--panel2);border-color:var(--line2);color:var(--faint)}
+
+.task-err{font-family:var(--mono);font-size:11.5px;color:#e07070;
+  padding:0 24px 14px;margin-top:-8px;display:none}
+
+/* ── claim section ── */
+.claim-wrap{padding:28px 24px 30px;border-top:1px solid var(--line)}
+.claim-btn{width:100%;font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.07em;
+  color:#1c1305;background:linear-gradient(180deg,#e9bd72,var(--brass));border:1px solid #7a521f;
+  border-radius:10px;padding:16px;cursor:pointer;transition:opacity .15s,transform .05s}
+.claim-btn:hover:not(:disabled){opacity:.88}
+.claim-btn:active:not(:disabled){transform:scale(.99)}
+.claim-btn:disabled{opacity:.35;cursor:not-allowed;
+  background:var(--panel2);border-color:var(--line2);color:var(--faint)}
+.claim-status{margin-top:12px;font-family:var(--mono);font-size:12px;
+  text-align:center;min-height:18px;color:var(--muted)}
+.claim-status.err{color:#e07070}
+
+/* ── success ── */
+.success-box{display:none;text-align:center;padding:52px 24px 48px}
+.success-box .ant{font-size:44px;margin-bottom:18px}
+.success-box h2{font-family:var(--disp);font-size:26px;font-weight:500;margin:0 0 10px}
+.success-box p{color:var(--muted);font-size:14px;margin:0}
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="inner">
+    <a class="brand" href="onchain-ant-farm.html">On-Chain Ant Farm</a>
+    <a class="nav-link" href="onchain-ant-farm.html#viewer">Viewer</a>
+    <a class="nav-link" href="onchain-ant-farm.html#gallery">Gallery</a>
+    <a class="nav-link active" href="whitelist.html">Apply to WL</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <p class="eyebrow">Whitelist application</p>
+  <h1>Join the <em>Colony</em></h1>
+  <p class="lede">Complete all four tasks in order to unlock your spot.</p>
+
+  <!-- progress -->
+  <div class="prog-wrap">
+    <div class="prog-header">
+      Tasks completed <span id="progCount">0 / 4</span>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+  </div>
+
+  <div class="card">
+    <div id="formArea">
+
+      <!-- Task 1 -->
+      <div class="task" id="task-1">
+        <div class="task-top">
+          <div class="task-num"><span class="task-num-inner">1</span></div>
+          <div class="task-content">
+            <div class="task-label">Follow &amp; identify</div>
+            <p class="task-desc">Follow <a href="https://x.com/OnChainAntFarm" target="_blank" rel="noopener">@OnChainAntFarm</a> on X, then enter your username below.</p>
+            <input class="task-input" id="wl-username" type="text" placeholder="@yourhandle" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
+        <p class="task-err" id="err-1"></p>
+        <div class="task-actions">
+          <button class="t-btn go-btn" data-href="https://x.com/OnChainAntFarm" data-task="1">Go! →</button>
+          <button class="t-btn done-btn" data-task="1" disabled>Done ✓</button>
+        </div>
+      </div>
+
+      <!-- Task 2 -->
+      <div class="task locked" id="task-2">
+        <div class="task-top">
+          <div class="task-num"><span class="task-num-inner">2</span></div>
+          <div class="task-content">
+            <div class="task-label">Like &amp; retweet</div>
+            <p class="task-desc">Like and retweet <a href="https://x.com/OnChainAntFarm/status/2069174039378120859?s=20" target="_blank" rel="noopener">this post</a>.</p>
+          </div>
+        </div>
+        <p class="task-err" id="err-2"></p>
+        <div class="task-actions">
+          <button class="t-btn go-btn" data-href="https://x.com/OnChainAntFarm/status/2069174039378120859?s=20" data-task="2">Go! →</button>
+          <button class="t-btn done-btn" data-task="2" disabled>Done ✓</button>
+        </div>
+      </div>
+
+      <!-- Task 3 -->
+      <div class="task locked" id="task-3">
+        <div class="task-top">
+          <div class="task-num"><span class="task-num-inner">3</span></div>
+          <div class="task-content">
+            <div class="task-label">Comment &amp; share link</div>
+            <p class="task-desc">Leave a comment on <a href="https://x.com/OnChainAntFarm/status/2069174039378120859?s=20" target="_blank" rel="noopener">this post</a>, then paste your comment link.</p>
+            <input class="task-input" id="wl-comment" type="url" placeholder="https://x.com/..." autocomplete="off" spellcheck="false" disabled>
+          </div>
+        </div>
+        <p class="task-err" id="err-3"></p>
+        <div class="task-actions">
+          <button class="t-btn go-btn" data-href="https://x.com/OnChainAntFarm/status/2069174039378120859?s=20" data-task="3">Go! →</button>
+          <button class="t-btn done-btn" data-task="3" disabled>Done ✓</button>
+        </div>
+      </div>
+
+      <!-- Task 4 -->
+      <div class="task locked" id="task-4">
+        <div class="task-top">
+          <div class="task-num"><span class="task-num-inner">4</span></div>
+          <div class="task-content">
+            <div class="task-label">EVM wallet</div>
+            <p class="task-desc">Drop your EVM wallet address to receive your allocation.</p>
+            <input class="task-input" id="wl-wallet" type="text" placeholder="0x..." autocomplete="off" spellcheck="false" disabled>
+          </div>
+        </div>
+        <p class="task-err" id="err-4"></p>
+        <div class="task-actions">
+          <button class="t-btn done-btn" data-task="4" disabled>Done ✓</button>
+        </div>
+      </div>
+
+      <!-- claim -->
+      <div class="claim-wrap">
+        <button class="claim-btn" id="claimBtn" disabled>Claim my spot →</button>
+        <p class="claim-status" id="claimStatus"></p>
+      </div>
+
+    </div>
+
+    <div class="success-box" id="successBox">
+      <div class="ant">🐜</div>
+      <h2>You're in the colony.</h2>
+      <p id="successMsg">Your spot has been reserved. Stay tuned for mint details.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const TOTAL = 4;
+const completed = [false, false, false, false];
+
+function updateProgress() {
+  const n = completed.filter(Boolean).length;
+  document.getElementById('progCount').textContent = n + ' / ' + TOTAL;
+  document.getElementById('progFill').style.width = (n / TOTAL * 100) + '%';
+  document.getElementById('claimBtn').disabled = n < TOTAL;
+}
+
+function unlockTask(n) {
+  const el = document.getElementById('task-' + n);
+  if (!el) return;
+  el.classList.remove('locked');
+  el.querySelectorAll('.task-input').forEach(i => i.disabled = false);
+  // task 4 has no Go! button — enable Done straight away on unlock
+  if (n === 4) {
+    document.querySelector('.done-btn[data-task="4"]').disabled = false;
+  }
+}
+
+function markDone(n) {
+  const el = document.getElementById('task-' + n);
+  el.classList.add('done');
+  completed[n - 1] = true;
+  // lock all interaction on this task
+  document.querySelectorAll('[data-task="' + n + '"]').forEach(b => b.disabled = true);
+  updateProgress();
+  if (n < TOTAL) unlockTask(n + 1);
+}
+
+function taskErr(n, msg) {
+  const el = document.getElementById('err-' + n);
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+}
+
+// Go! — open link then enable Done for that task
+document.querySelectorAll('.go-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    window.open(btn.dataset.href, '_blank', 'noopener');
+    const n = +btn.dataset.task;
+    document.querySelector('.done-btn[data-task="' + n + '"]').disabled = false;
+  });
+});
+
+// Done ✓ — validate then advance
+document.querySelectorAll('.done-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const n = +btn.dataset.task;
+    taskErr(n, '');
+
+    if (n === 1) {
+      const val = document.getElementById('wl-username').value.trim();
+      if (!val) { taskErr(1, 'Enter your X username first.'); return; }
+    }
+    if (n === 3) {
+      const val = document.getElementById('wl-comment').value.trim();
+      if (!val) { taskErr(3, 'Paste your comment link first.'); return; }
+      if (!/^https?:\/\/x\.com\//i.test(val)) { taskErr(3, 'Must be an x.com URL.'); return; }
+    }
+    if (n === 4) {
+      const val = document.getElementById('wl-wallet').value.trim();
+      if (!val) { taskErr(4, 'Enter your EVM wallet address.'); return; }
+      if (!/^0x[0-9a-fA-F]{40}$/.test(val)) { taskErr(4, 'Must be a valid EVM address (0x… 42 chars).'); return; }
+    }
+
+    markDone(n);
+  });
+});
+
+// Claim
+document.getElementById('claimBtn').addEventListener('click', function () {
+  const status = document.getElementById('claimStatus');
+  this.disabled = true;
+  status.className = 'claim-status';
+  status.textContent = 'Submitting…';
+
+  const payload = {
+    username: document.getElementById('wl-username').value.trim(),
+    comment:  document.getElementById('wl-comment').value.trim(),
+    wallet:   document.getElementById('wl-wallet').value.trim(),
+  };
+  console.log('WL submission', payload);
+
+  setTimeout(() => {
+    document.getElementById('formArea').style.display = 'none';
+    const box = document.getElementById('successBox');
+    box.style.display = 'block';
+    document.getElementById('successMsg').textContent =
+      'Welcome, ' + payload.username + '. Your spot is reserved — stay tuned for mint details.';
+  }, 900);
+});
+
+updateProgress();
+</script>
+</body>
+</html>
